@@ -15,10 +15,12 @@ export default function App() {
   const [to, setTo] = useState(`EUR`);
   const [convertedAmount, setConvertedAmount] = useState(0);
   const [currencies, setCurrencies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function getCurrencies() {
       try {
+        setIsLoading(true);
         const response = await fetch(
           "https://api.frankfurter.dev/v1/currencies"
         );
@@ -35,6 +37,8 @@ export default function App() {
         setCurrencies(currencies);
       } catch (error) {
         console.error(`Currency load error: ${error}`);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -44,6 +48,7 @@ export default function App() {
   useEffect(() => {
     async function convert() {
       try {
+        setIsLoading(true);
         if (from === to) {
           setConvertedAmount(amount);
           return;
@@ -61,6 +66,8 @@ export default function App() {
         setConvertedAmount(data.rates[to]);
       } catch (error) {
         console.error(`Converting error: ${error}`);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -104,7 +111,9 @@ export default function App() {
           </select>
         </div>
         <p className="text-center text-xl font-semibold">
-          {convertedAmount
+          {isLoading
+            ? "Loading..."
+            : convertedAmount
             ? `${convertedAmount} ${to}`
             : "Enter amount to convert"}
         </p>
